@@ -86,7 +86,7 @@ namespace Bonobo.Git.Server.Controllers
                     }
                     else
                     {
-                        MembershipService.UpdateUser(model.Username, user.Name, user.Surname, user.Email, model.Password);
+                        MembershipService.UpdateUser(user.Id, model.Username, user.Name, user.Surname, user.Email, model.Password);
                         TempData["ResetSuccess"] = true;
                     }
                 }
@@ -114,7 +114,7 @@ namespace Bonobo.Git.Server.Controllers
                     }
                     else
                     {
-                        string token = MembershipService.GenerateResetToken(model.Username);
+                        string token = MembershipService.GenerateResetToken(user.Name);
                         MvcApplication.Cache.Add(token, model.Username, DateTimeOffset.Now.AddHours(1));
                         TempData["SendSuccess"] = MembershipHelper.SendForgotPasswordEmail(user, token);
                     }
