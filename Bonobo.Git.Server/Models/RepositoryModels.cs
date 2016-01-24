@@ -29,6 +29,14 @@ namespace Bonobo.Git.Server.Models
         public bool AuditPushUser { get; set; }
         public byte[] Logo { get; set; }
         public bool RemoveLogo { get; set; }
+
+        public string DisplayName
+        {
+            get
+            {
+                return Name;
+            }
+        }
     }
 
     public class RepositoryDetailModel
