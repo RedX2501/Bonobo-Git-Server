@@ -23,9 +23,9 @@ namespace Bonobo.Git.Server.Controllers
         public ActionResult SecureGetInfoRefs(String project, String service)
         {
             if (RepositoryPermissionService.AllowsAnonymous(project)
-                || (RepositoryPermissionService.HasPermission(User.Username(), project)
-                    && (String.Equals("git-upload-pack", service, StringComparison.OrdinalIgnoreCase)
-                        || UserConfiguration.Current.AllowAnonymousPush)))
+                || RepositoryPermissionService.HasPermission(User.Username(), project)
+                    || (String.Equals("git-upload-pack", service, StringComparison.OrdinalIgnoreCase)
+                        || UserConfiguration.Current.AllowAnonymousPush))
             {
                 return GetInfoRefs(project, service);
             }
