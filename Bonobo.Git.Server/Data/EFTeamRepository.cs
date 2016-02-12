@@ -15,25 +15,63 @@ namespace Bonobo.Git.Server.Data
             {
                 var dbTeams = db.Teams.Select(team => new
                 {
+                    Id = team.Id,
                     Name = team.Name,
                     Description = team.Description,
-                    Members = team.Users.Select(i => i.Username),
+                    Members = team.Users,
                     Repositories = team.Repositories.Select(m => m.Name),
                 }).ToList();
 
                 return dbTeams.Select(item => new TeamModel
                 {
+                    Id = item.Id,
                     Name = item.Name,
                     Description = item.Description,
-                    Members = item.Members.ToArray(),
+                    Members = item.Members.Select(ToUserModel).ToArray(),
                 }).ToList();
             }
         }
 
-        public IList<TeamModel> GetTeams(string username)
+        private UserModel ToUserModel(User u){
+            return new UserModel
+            {
+                Id = u.Id,
+                Name = u.Username,
+                GivenName = u.Name,
+                Surname = u.Surname,
+                Email = u.Email
+            };
+        }
+
+        public IList<TeamModel> GetTeams(Guid UserId)
         {
-            username = username.ToLowerInvariant(); 
-            return GetAllTeams().Where(i => i.Members.Contains(username)).ToList();
+            return GetAllTeams().Where(i => i.Members.Any(x => x.Id == UserId)).ToList();
+        }
+
+        public IList<TeamModel> GetTeams(string UserName)
+        {
+            return GetAllTeams().Where(i => i.Members.Any(x => x.Name == UserName)).ToList();
+        }
+
+        private TeamModel GetTeam(Team team)
+        {
+                return team == null ? null : new TeamModel
+                {
+                    Id = team.Id,
+                    Name = team.Name,
+                    Description = team.Description,
+                    Members = team.Users.Select(ToUserModel).ToArray(),
+                };
+        }
+
+        public TeamModel GetTeam(Guid id)
+        {
+
+            using (var db = new BonoboGitServerContext())
+            {
+                var team = db.Teams.FirstOrDefault(i => i.Id == id);
+                return GetTeam(team);
+            }
         }
 
         public TeamModel GetTeam(string name)
@@ -43,22 +81,15 @@ namespace Bonobo.Git.Server.Data
             using (var db = new BonoboGitServerContext())
             {
                 var team = db.Teams.FirstOrDefault(i => i.Name == name);
-                return team == null ? null : new TeamModel
-                {
-                    Name = team.Name,
-                    Description = team.Description,
-                    Members = team.Users.Select(m => m.Username).ToArray(),
-                };
+                return GetTeam(team);
             }
         }
 
-        public void Delete(string name)
+        public void Delete(Guid teamId)
         {
-            if (name == null) throw new ArgumentException("name");
-
             using (var db = new BonoboGitServerContext())
             {
-                var team = db.Teams.FirstOrDefault(i => i.Name == name);
+                var team = db.Teams.FirstOrDefault(i => i.Id == teamId);
                 if (team != null)
                 {
                     team.Repositories.Clear();
@@ -78,13 +109,14 @@ namespace Bonobo.Git.Server.Data
             {
                 var team = new Team
                 {
+                    Id = Guid.NewGuid(),
                     Name = model.Name,
                     Description = model.Description
                 };
                 database.Teams.Add(team);
                 if (model.Members != null)
                 {
-                    AddMembers(model.Members, team, database);
+                    AddMembers(model.Members.Select(x => x.Name), team, database);
                 }
                 try
                 {
@@ -113,7 +145,7 @@ namespace Bonobo.Git.Server.Data
                     team.Users.Clear();
                     if (model.Members != null)
                     {
-                        AddMembers(model.Members, team, db);
+                        AddMembers(model.Members.Select(x => x.Name), team, db);
                     }
                     db.SaveChanges();
                 }

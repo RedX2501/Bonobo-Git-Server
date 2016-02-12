@@ -25,7 +25,7 @@ namespace Bonobo.Git.Server.Controllers
         public ActionResult SecureGetInfoRefs(String project, String service)
         {
             bool allowAnonClone = RepositoryPermissionService.AllowsAnonymous(project);
-            bool hasPermission = RepositoryPermissionService.HasPermission(User.Id(), project);
+            bool hasPermission = RepositoryPermissionService.HasPermission(User.Username(), project);
             bool isClone = String.Equals("git-upload-pack", service, StringComparison.OrdinalIgnoreCase);
             bool isPush = String.Equals("git-receive-pack", service, StringComparison.OrdinalIgnoreCase);
             bool allowAnonPush = UserConfiguration.Current.AllowAnonymousPush;
@@ -43,7 +43,7 @@ namespace Bonobo.Git.Server.Controllers
         [HttpPost]
         public ActionResult SecureUploadPack(String project)
         {
-            if (RepositoryPermissionService.HasPermission(User.Id(), project)
+            if (RepositoryPermissionService.HasPermission(User.Username(), project)
                 || RepositoryPermissionService.AllowsAnonymous(project))
             {
                 return ExecuteUploadPack(project);
@@ -57,7 +57,7 @@ namespace Bonobo.Git.Server.Controllers
         [HttpPost]
         public ActionResult SecureReceivePack(String project)
         {
-            if (RepositoryPermissionService.HasPermission(User.Id(), project)
+            if (RepositoryPermissionService.HasPermission(User.Username(), project)
                 || (RepositoryPermissionService.AllowsAnonymous(project) && UserConfiguration.Current.AllowAnonymousPush))
             {
                 return ExecuteReceivePack(project);

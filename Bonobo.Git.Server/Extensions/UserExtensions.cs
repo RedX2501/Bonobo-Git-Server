@@ -29,9 +29,15 @@ namespace Bonobo.Git.Server
             return result;
         }
 
-        public static string Id(this IPrincipal user)
+        public static Guid Id(this IPrincipal user)
         {
-            return user.GetClaim(ClaimTypes.Upn);
+            string id = user.GetClaim(ClaimTypes.Upn);
+            return id != null ? Guid.Parse(id) : Guid.Empty;
+        }
+
+        public static string Username(this IPrincipal user)
+        {
+            return user.GetClaim(ClaimTypes.NameIdentifier);
         }
 
         public static string Name(this IPrincipal user)

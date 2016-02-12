@@ -21,7 +21,7 @@ namespace Bonobo.Git.Server
             if (!(filterContext.Result is HttpUnauthorizedResult))
             {
                 string repository = filterContext.Controller.ControllerContext.RouteData.Values["id"].ToString();
-                string user = filterContext.HttpContext.User.Id();
+                string user = filterContext.HttpContext.User.Username();
 
                 if (filterContext.HttpContext.User.IsInRole(Definitions.Roles.Administrator))
                 {
