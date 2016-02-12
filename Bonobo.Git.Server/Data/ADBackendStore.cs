@@ -16,7 +16,7 @@ namespace Bonobo.Git.Server.Data
 {
     public class ADBackendStore<T> : IEnumerable<T> where T : INameProperty
     {
-        public T this[string key]
+        public T this[Guid key]
         {
             get
             {
@@ -34,7 +34,7 @@ namespace Bonobo.Git.Server.Data
         }
 
         private string storagePath;
-        private ConcurrentDictionary<string, T> content;
+        private ConcurrentDictionary<Guid, T> content;
         private readonly string hexchars = "0123456789abcdef";
 
         public ADBackendStore(string rootpath, string name)
@@ -45,10 +45,10 @@ namespace Bonobo.Git.Server.Data
 
         public bool Add(T item)
         {
-            return content.TryAdd(item.Name, item) && Store(item);
+            return content.TryAdd(item.Id, item) && Store(item);
         }
 
-        public bool Remove(string key)
+        public bool Remove(Guid key)
         {
             T removedItem;
             return content.TryRemove(key, out removedItem) && Delete(removedItem);
@@ -56,12 +56,12 @@ namespace Bonobo.Git.Server.Data
 
         public bool Remove(T item)
         {
-            return Remove(item.Name);
+            return Remove(item.Id);
         }
 
         public void Update(T item)
         {
-            if (content.TryUpdate(item.Name, item, content[item.Name]))
+            if (content.TryUpdate(item.Id, item, content[item.Id]))
             {
                 Store(item);
             }
@@ -69,7 +69,7 @@ namespace Bonobo.Git.Server.Data
 
         public void AddOrUpdate(T item)
         {
-            content.AddOrUpdate(item.Name, item, (k, v) => item);
+            content.AddOrUpdate(item.Id, item, (k, v) => item);
             Store(item);
         }
 
@@ -118,9 +118,9 @@ namespace Bonobo.Git.Server.Data
             return result;
         }
 
-        private ConcurrentDictionary<string, T> LoadContent()
+        private ConcurrentDictionary<Guid, T> LoadContent()
         {
-            ConcurrentDictionary<string, T> result = new ConcurrentDictionary<string, T>();
+            ConcurrentDictionary<Guid, T> result = new ConcurrentDictionary<Guid, T>();
 
             if (!Directory.Exists(storagePath))
             {
@@ -132,7 +132,7 @@ namespace Bonobo.Git.Server.Data
                 try
                 {
                     T item = JsonConvert.DeserializeObject<T>(File.ReadAllText(filename));
-                    result.TryAdd(item.Name, item);
+                    result.TryAdd(item.Id, item);
                 }
                 catch
                 {

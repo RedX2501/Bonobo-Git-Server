@@ -17,8 +17,6 @@ namespace Bonobo.Git.Server.Data
     {
         public bool Create(RepositoryModel repository)
         {
-            // To populate _id_to_name table
-            GetAllRepositories();
             repository.Id = Guid.NewGuid();
 
             return ADBackend.Instance.Repositories.Add(SanitizeModel(repository));
@@ -26,7 +24,7 @@ namespace Bonobo.Git.Server.Data
 
         public void Delete(Guid Id)
         {
-            ADBackend.Instance.Repositories.Remove(Id.ToString());
+            ADBackend.Instance.Repositories.Remove(Id);
         }
 
         public IList<RepositoryModel> GetAdministratedRepositories(Guid Id)
@@ -54,7 +52,7 @@ namespace Bonobo.Git.Server.Data
         
         public RepositoryModel GetRepository(Guid id)
         {
-            return ADBackend.Instance.Repositories[id.ToString()];
+            return ADBackend.Instance.Repositories[id];
         }
 
         public void Update(RepositoryModel repository)
