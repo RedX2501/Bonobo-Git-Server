@@ -18,7 +18,8 @@ Prerequisites
     * Windows Vista SP2, Windows 7, Windows 8 and higher
     * Windows Server 2008 R2, Windows Server 2008 SP2, Windows Server 2012 and higher
     * Don't forget to register .NET framework with your IIS
-        * Run `%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_regiis.exe -ir` with administrator privileges
+        * Win 32bit: Run `%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_regiis.exe -ir` with administrator privileges
+        * win 64bit: Run `%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_regiis. exe -ir` with administrator privileges
 
 <hr />
 
